@@ -5,14 +5,13 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Scroller;
-
-import com.mkreidl.timeslider.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -65,10 +64,8 @@ public class TimeSlider extends View implements TimeScrollable
 
     private static int getYear( Calendar calendar )
     {
-        if ( calendar.get( Calendar.ERA ) == GregorianCalendar.AD )
-            return calendar.get( Calendar.YEAR );
-        else
-            return 1 - calendar.get( Calendar.YEAR );
+        return calendar.get( Calendar.ERA ) == GregorianCalendar.AD ?
+                calendar.get( Calendar.YEAR ) : 1 - calendar.get( Calendar.YEAR );
     }
 
     private static void setYear( Calendar calendar, int yearNumber )
@@ -151,16 +148,6 @@ public class TimeSlider extends View implements TimeScrollable
     private SimpleDateFormat dateFormat;
     private float millisPerScrolledPixel;
     private float millisPerScrolledPixelFling = millisPerScrolledPixel;
-
-    public boolean isHorizontal()
-    {
-        return orientation == Orientation.LEFT || orientation == Orientation.RIGHT;
-    }
-
-    public boolean isVertical()
-    {
-        return orientation == Orientation.UP || orientation == Orientation.DOWN;
-    }
 
     public TimeSlider( Context context )
     {
@@ -440,6 +427,16 @@ public class TimeSlider extends View implements TimeScrollable
         setTimeUnitIndex( 0, false );
     }
 
+    private boolean isHorizontal()
+    {
+        return orientation == Orientation.LEFT || orientation == Orientation.RIGHT;
+    }
+
+    private boolean isVertical()
+    {
+        return orientation == Orientation.UP || orientation == Orientation.DOWN;
+    }
+
     private void setTimeUnitIndex( int unitIndex, boolean notifyListener )
     {
         this.unitIndex = unitIndex;
@@ -478,12 +475,8 @@ public class TimeSlider extends View implements TimeScrollable
                 setYear( calendar, year / timeUnitFactor * timeUnitFactor );
         }
         if ( calendar.getTimeInMillis() != time )
-        {
             time = calendar.getTimeInMillis();
-            return true;
-        }
-        else
-            return false;
+        return calendar.getTimeInMillis() != time;
     }
 
     @Override
@@ -522,7 +515,7 @@ public class TimeSlider extends View implements TimeScrollable
             continuousTime = time;
             tmpCalendar.setTimeInMillis( time );
             scroller.forceFinished( true );
-            postInvalidateOnAnimation();
+            lagacyPostInvalidateOnAnimation();
             millisPerScrolledPixel = scrollSpeed * convertToMillis( timeUnit ) * timeUnitFactor
                     / ( isHorizontal() ? minItemWidth : minItemHeight );
             millisPerScrolledPixelFling = millisPerScrolledPixel;
@@ -565,7 +558,7 @@ public class TimeSlider extends View implements TimeScrollable
             if ( updateTime( continuousTime ) )
             {
                 listener.onTimeScroll( time, TimeSlider.this );
-                postInvalidate();
+                lagacyPostInvalidateOnAnimation();
             }
             return true;
         }
@@ -591,8 +584,16 @@ public class TimeSlider extends View implements TimeScrollable
                     break;
             }
             scroller.fling( 0, 0, velocity, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 0 );
-            postInvalidateOnAnimation();
+            lagacyPostInvalidateOnAnimation();
             return true;
         }
+    }
+
+    private void lagacyPostInvalidateOnAnimation()
+    {
+        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
+            postInvalidateOnAnimation();
+        else
+            postInvalidate();
     }
 }
