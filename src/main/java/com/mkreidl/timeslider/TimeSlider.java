@@ -93,7 +93,6 @@ public class TimeSlider extends View implements TimeScrollable
     private final GestureDetector gestureDetector = new GestureDetector( getContext(), new GestureListener() );
     private OnTimeScrollListener listener = new OnTimeScrollListener()
     {
-        // Null object
         @Override
         public void onTimeScroll( long time, TimeScrollable source )
         {
@@ -147,7 +146,6 @@ public class TimeSlider extends View implements TimeScrollable
     private int timeUnitFactor;
     private SimpleDateFormat dateFormat;
     private float millisPerScrolledPixel;
-    private float millisPerScrolledPixelFling = millisPerScrolledPixel;
 
     public TimeSlider( Context context )
     {
@@ -474,16 +472,16 @@ public class TimeSlider extends View implements TimeScrollable
                     year -= timeUnitFactor - 1;
                 setYear( calendar, year / timeUnitFactor * timeUnitFactor );
         }
-        if ( calendar.getTimeInMillis() != time )
-            time = calendar.getTimeInMillis();
-        return calendar.getTimeInMillis() != time;
+        final boolean timeChanged = calendar.getTimeInMillis() != time;
+        time = calendar.getTimeInMillis();
+        return timeChanged;
     }
 
     @Override
     public void computeScroll()
     {
         super.computeScroll();
-        if ( scroller.computeScrollOffset() && updateTime( flingStartTime + (long)( millisPerScrolledPixelFling * scroller.getCurrX() ) ) )
+        if ( scroller.computeScrollOffset() && updateTime( flingStartTime + (long)( millisPerScrolledPixel * scroller.getCurrX() ) ) )
         {
             listener.onTimeScroll( time, this );
             postInvalidate();
@@ -518,7 +516,6 @@ public class TimeSlider extends View implements TimeScrollable
             lagacyPostInvalidateOnAnimation();
             millisPerScrolledPixel = scrollSpeed * convertToMillis( timeUnit ) * timeUnitFactor
                     / ( isHorizontal() ? minItemWidth : minItemHeight );
-            millisPerScrolledPixelFling = millisPerScrolledPixel;
             return true;
         }
 
