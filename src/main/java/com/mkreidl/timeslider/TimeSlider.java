@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -94,12 +95,17 @@ public class TimeSlider extends View implements TimeScrollable
     private OnTimeScrollListener listener = new OnTimeScrollListener()
     {
         @Override
-        public void onTimeScroll( long time, TimeScrollable source )
+        public void onTimeScroll( long time, @Nullable TimeScrollable source )
         {
         }
 
         @Override
-        public void onScrollUnitChanged( TimeScrollable source )
+        public void onTimeChanged( long time, @Nullable TimeScrollable source )
+        {
+        }
+
+        @Override
+        public void onScrollUnitChanged( @Nullable TimeScrollable source )
         {
         }
     };
@@ -289,7 +295,7 @@ public class TimeSlider extends View implements TimeScrollable
     }
 
     @Override
-    public synchronized void onDraw( Canvas canvas )
+    protected synchronized void onDraw( Canvas canvas )
     {
         float posX = centerX;
         float posY = centerY;
@@ -482,10 +488,7 @@ public class TimeSlider extends View implements TimeScrollable
     {
         super.computeScroll();
         if ( scroller.computeScrollOffset() && updateTime( flingStartTime + (long)( millisPerScrolledPixel * scroller.getCurrX() ) ) )
-        {
-            listener.onTimeScroll( time, this );
-            postInvalidate();
-        }
+            listener.onTimeChanged( time, this );
     }
 
     @Override

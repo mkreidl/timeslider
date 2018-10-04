@@ -13,7 +13,9 @@ public interface TimeScrollable
     {
         void onTimeScroll( long time, @Nullable TimeScrollable source );
 
-        void onScrollUnitChanged( TimeScrollable source );
+        void onTimeChanged( long time, @Nullable TimeScrollable source );
+
+        void onScrollUnitChanged( @Nullable TimeScrollable source );
     }
 
     void setOnTimeScrollListener( @NonNull OnTimeScrollListener listener );

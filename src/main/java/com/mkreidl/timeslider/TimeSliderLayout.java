@@ -29,7 +29,12 @@ public class TimeSliderLayout extends LinearLayout
         }
 
         @Override
-        public void onScrollUnitChanged( TimeScrollable source )
+        public void onTimeChanged( long time, @Nullable TimeScrollable source )
+        {
+        }
+
+        @Override
+        public void onScrollUnitChanged( @Nullable TimeScrollable source )
         {
         }
     };
@@ -63,16 +68,28 @@ public class TimeSliderLayout extends LinearLayout
     @Override
     public void onTimeScroll( long time, @Nullable TimeScrollable source )
     {
+        synchronizeTime( time, source );
+        listener.onTimeScroll( time, activeScrollable );
+    }
+
+    @Override
+    public void onTimeChanged( long time, @Nullable TimeScrollable source )
+    {
+        synchronizeTime( time, source );
+        listener.onTimeChanged( time, activeScrollable );
+    }
+
+    private void synchronizeTime( long time, @Nullable TimeScrollable source )
+    {
         this.time = time;
         activeScrollable = source;
         for ( TimeScrollable subSlider : subSliders )
             if ( subSlider != activeScrollable )
                 subSlider.setTime( time );
-        listener.onTimeScroll( time, activeScrollable );
     }
 
     @Override
-    public void onScrollUnitChanged( TimeScrollable source )
+    public void onScrollUnitChanged( @Nullable TimeScrollable source )
     {
         activeScrollable = source;
         listener.onScrollUnitChanged( source );
