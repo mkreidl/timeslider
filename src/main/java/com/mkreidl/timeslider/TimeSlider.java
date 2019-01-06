@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -516,7 +515,7 @@ public class TimeSlider extends View implements TimeScrollable
             continuousTime = time;
             tmpCalendar.setTimeInMillis( time );
             scroller.forceFinished( true );
-            lagacyPostInvalidateOnAnimation();
+            postInvalidateOnAnimation();
             millisPerScrolledPixel = scrollSpeed * convertToMillis( timeUnit ) * timeUnitFactor
                     / ( isHorizontal() ? minItemWidth : minItemHeight );
             return true;
@@ -558,7 +557,7 @@ public class TimeSlider extends View implements TimeScrollable
             if ( updateTime( continuousTime ) )
             {
                 listener.onTimeScroll( time, TimeSlider.this );
-                lagacyPostInvalidateOnAnimation();
+                postInvalidateOnAnimation();
             }
             return true;
         }
@@ -584,16 +583,8 @@ public class TimeSlider extends View implements TimeScrollable
                     break;
             }
             scroller.fling( 0, 0, velocity, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 0 );
-            lagacyPostInvalidateOnAnimation();
+            postInvalidateOnAnimation();
             return true;
         }
-    }
-
-    private void lagacyPostInvalidateOnAnimation()
-    {
-        if ( Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN )
-            postInvalidateOnAnimation();
-        else
-            postInvalidate();
     }
 }
