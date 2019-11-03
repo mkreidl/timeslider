@@ -285,8 +285,6 @@ public class TimeSlider extends View implements TimeScrollable
                 timeUnit = Calendar.SECOND;
                 break;
             case "millisecond":
-                timeUnit = Calendar.MILLISECOND;
-                break;
             default:
                 timeUnit = Calendar.MILLISECOND;
                 break;
